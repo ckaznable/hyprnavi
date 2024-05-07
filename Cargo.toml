@@ -1,0 +1,15 @@
+[package]
+name = "hyprnavi"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+anyhow = "1.0.82"
+argh = "0.1.12"
+hyprland = "0.4.0-alpha.1"
+
+[profile.release]
+opt-level = "z"
+lto = true
+codegen-units = 1
+panic = 'abort'
