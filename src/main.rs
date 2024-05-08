@@ -1,4 +1,4 @@
-use std::cmp::Ordering;
+use std::cmp::{self, Ordering};
 
 use hyprland::{
     data::{Client, Clients},
@@ -61,7 +61,7 @@ fn main() -> anyhow::Result<()> {
 
 #[inline]
 fn get_neighborhood_workspace(clients: &[Client], act_ws_id: i32) -> (i32, i32) {
-    clients.iter().fold((act_ws_id, act_ws_id), |acc, client| {
+    let (prev, next, max, min) = clients.iter().fold((act_ws_id, act_ws_id, act_ws_id, act_ws_id), |acc, client| {
         let id = client.workspace.id;
         if id == act_ws_id {
             return acc;
@@ -69,22 +69,31 @@ fn get_neighborhood_workspace(clients: &[Client], act_ws_id: i32) -> (i32, i32) 
 
         let diff = act_ws_id - id;
         let diff_last = act_ws_id - acc.0;
-        let prev = if diff < diff_last && diff != 0 {
+        let prev = if act_ws_id > id && diff != 0 && (diff_last == 0 || diff_last > diff) {
             id
         } else {
             acc.0
         };
 
         let diff = id - act_ws_id;
-        let diff_last = acc.0 - act_ws_id;
-        let next = if diff < diff_last && diff != 0 {
+        let diff_last = acc.1 - act_ws_id;
+        let next = if act_ws_id < id && diff != 0 && (diff_last == 0 || diff_last > diff) {
             id
         } else {
             acc.1
         };
 
-        (prev, next)
-    })
+        (
+            prev,
+            next,
+            cmp::max(acc.2, id),
+            cmp::min(acc.3, id),
+        )
+    });
+
+    let prev = if prev == act_ws_id { max } else { prev };
+    let next = if next == act_ws_id { min } else { next };
+    (prev, next)
 }
 
 fn get_edge_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Client)> {
