@@ -61,35 +61,21 @@ fn main() -> anyhow::Result<()> {
 
 #[inline]
 fn get_neighborhood_workspace(clients: &[Client], act_ws_id: i32) -> (i32, i32) {
-    let (prev, next, max, min) = clients.iter().fold((act_ws_id, act_ws_id, act_ws_id, act_ws_id), |acc, client| {
-        let id = client.workspace.id;
-        if id == act_ws_id {
-            return acc;
-        }
+    let near_than_last = |id_cur: i32, id_last: i32| -> bool {
+        let dist_cur = (id_cur - act_ws_id).abs();
+        let dist_last = (id_last - act_ws_id).abs();
+        dist_cur != 0 && (dist_last == 0 || dist_last > dist_cur)
+    };
 
-        let diff = act_ws_id - id;
-        let diff_last = act_ws_id - acc.0;
-        let prev = if act_ws_id > id && diff != 0 && (diff_last == 0 || diff_last > diff) {
-            id
-        } else {
-            acc.0
-        };
-
-        let diff = id - act_ws_id;
-        let diff_last = acc.1 - act_ws_id;
-        let next = if act_ws_id < id && diff != 0 && (diff_last == 0 || diff_last > diff) {
-            id
-        } else {
-            acc.1
-        };
-
-        (
-            prev,
-            next,
-            cmp::max(acc.2, id),
-            cmp::min(acc.3, id),
-        )
-    });
+    let (prev, next, max, min) = clients
+        .iter()
+        .filter(|client| client.workspace.id != act_ws_id)
+        .fold((act_ws_id, act_ws_id, act_ws_id, act_ws_id), |acc, client| {
+            let id = client.workspace.id;
+            let prev = if act_ws_id > id && near_than_last(id, acc.0) { id } else { acc.0 };
+            let next = if act_ws_id < id && near_than_last(id, acc.1) { id } else { acc.1 };
+            (prev, next, cmp::max(acc.2, id), cmp::min(acc.3, id))
+        });
 
     let prev = if prev == act_ws_id { max } else { prev };
     let next = if next == act_ws_id { min } else { next };
@@ -105,15 +91,22 @@ fn get_edge_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Clie
         return Some((&clients[0], &clients[0]));
     }
 
+    let cmp_left = |a: &Client, b: &Client| a.at.0.cmp(&b.at.0).is_gt();
+    let cmp_right = |a: &Client, b: &Client| {
+        let a = a.at.0 + a.size.0;
+        let b = b.at.0 + b.size.0;
+        a.cmp(&b).is_le()
+    };
+
     let result = clients
         .iter()
         .filter(|client| client.workspace.id == workspace)
         .fold((&clients[0], &clients[0]), |mut result, client| {
-            if cmp_left(result.0, client).is_gt() {
+            if cmp_left(result.0, client) {
                 result.0 = client;
             }
 
-            if cmp_right(result.1, client).is_le() {
+            if cmp_right(result.1, client) {
                 result.1 = client;
             }
 
@@ -121,16 +114,4 @@ fn get_edge_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Clie
         });
 
     Some(result)
-}
-
-#[inline]
-fn cmp_left(a: &Client, b: &Client) -> Ordering {
-    a.at.0.cmp(&b.at.0)
-}
-
-#[inline]
-fn cmp_right(a: &Client, b: &Client) -> Ordering {
-    let a = a.at.0 + a.size.0;
-    let b = b.at.0 + b.size.0;
-    a.cmp(&b)
 }
