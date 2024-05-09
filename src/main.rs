@@ -98,10 +98,14 @@ fn get_edge_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Clie
         a.cmp(&b).is_le()
     };
 
-    let result = clients
+    let clients_in_ws = clients
         .iter()
         .filter(|client| client.workspace.id == workspace)
-        .fold((&clients[0], &clients[0]), |mut result, client| {
+        .collect::<Vec<&Client>>();
+
+    let result = clients_in_ws
+        .iter()
+        .fold((clients_in_ws[0], clients_in_ws[0]), |mut result, client| {
             if cmp_left(result.0, client) {
                 result.0 = client;
             }
