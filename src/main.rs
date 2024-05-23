@@ -75,7 +75,7 @@ fn handle_bound_navigation(client: &Client, act_client: &Client, swap: bool) -> 
 }
 
 fn handle_swap(client: &Client, act_client: &Client) -> anyhow::Result<()> {
-    // swap current to target workspace
+    // move current to target workspace
     Dispatch::call(
         DispatchType::MoveToWorkspaceSilent(
             WorkspaceIdentifierWithSpecial::Id(client.workspace.id),
@@ -83,7 +83,7 @@ fn handle_swap(client: &Client, act_client: &Client) -> anyhow::Result<()> {
         )
     )?;
 
-    // swap target client to current workspace
+    // move target client to current workspace
     Dispatch::call(
         DispatchType::MoveToWorkspaceSilent(
             WorkspaceIdentifierWithSpecial::Id(act_client.workspace.id),
