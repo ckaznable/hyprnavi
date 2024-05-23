@@ -5,9 +5,6 @@ use argh::FromArgs;
 pub struct Flags {
     #[argh(subcommand)]
     pub cmd: Command,
-
-    #[argh(switch, description = "swap window")]
-    pub swap: bool,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -20,10 +17,16 @@ pub enum Command {
 /// focus into window in right side
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "r")]
-pub struct CommandNext {}
+pub struct CommandNext {
+    #[argh(switch, description = "swap window")]
+    pub swap: bool,
+}
 
 /// focus into window in left side
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "l")]
-pub struct CommandPrev {}
+pub struct CommandPrev {
+    #[argh(switch, description = "swap window")]
+    pub swap: bool,
+}
 

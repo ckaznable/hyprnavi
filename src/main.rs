@@ -30,7 +30,7 @@ fn main() -> anyhow::Result<()> {
 
     use Command::*;
     match params.cmd {
-        Next(_) => {
+        Next(params) => {
             let next_left = get_bound_client(&clients, next_ws_id)
                 .map_or(first_client, |(c, _)| c);
 
@@ -40,7 +40,7 @@ fn main() -> anyhow::Result<()> {
                 handle_default_navigation(Direction::Right, params.swap)?;
             }
         }
-        Prev(_) => {
+        Prev(params) => {
             let prev_right = get_bound_client(&clients, prev_ws_id)
                 .map_or(last_client, |(_, c)| c);
 
@@ -85,7 +85,7 @@ fn handle_swap(client: &Client, act_client: &Client) -> anyhow::Result<()> {
 
     // move target client to current workspace
     Dispatch::call(
-        DispatchType::MoveToWorkspaceSilent(
+        DispatchType::MoveToWorkspace(
             WorkspaceIdentifierWithSpecial::Id(act_client.workspace.id),
             Some(WindowIdentifier::Address(client.address.clone()))
         )
@@ -142,6 +142,14 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
         .iter()
         .filter(|client| client.workspace.id == workspace)
         .fold((&clients[0], &clients[0]), |mut result, client| {
+            if result.0.workspace.id != workspace {
+                result.0 = client;
+            }
+
+            if result.1.workspace.id != workspace {
+                result.1 = client;
+            }
+
             if cmp_left(result.0, client) {
                 result.0 = client;
             }
