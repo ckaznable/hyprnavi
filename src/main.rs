@@ -2,7 +2,7 @@ use std::cmp;
 
 use hyprland::{
     data::{Client, Clients},
-    dispatch::{Direction, Dispatch, DispatchType, WindowIdentifier},
+    dispatch::{Direction, Dispatch, DispatchType, WindowIdentifier, WorkspaceIdentifierWithSpecial},
     shared::{HyprData, HyprDataActiveOptional, HyprDataVec},
 };
 
@@ -26,36 +26,76 @@ fn main() -> anyhow::Result<()> {
     let first_client = clients.first().unwrap();
     let last_client = clients.last().unwrap();
     let (prev_ws_id, next_ws_id) = get_neighborhood_workspace(&clients, act_ws_id);
-    let (left, right) = get_edge_client(&clients, act_ws_id).unwrap();
+    let (left, right) = get_bound_client(&clients, act_ws_id).unwrap();
 
-    let dispatch_type = match params.cmd {
-        Command::Next(_) => {
+    use Command::*;
+    match params.cmd {
+        Next(_) => {
+            let next_left = get_bound_client(&clients, next_ws_id)
+                .map_or(first_client, |(c, _)| c);
+
             if right.address == act_client.address {
-                let (next_left, _) = match get_edge_client(&clients, next_ws_id) {
-                    Some(c) => c,
-                    None => (first_client, first_client),
-                };
-
-                DispatchType::FocusWindow(WindowIdentifier::Address(next_left.address.clone()))
+                handle_bound_navigation(next_left, &act_client, params.swap)?;
             } else {
-                DispatchType::MoveFocus(Direction::Right)
+                handle_default_navigation(Direction::Right, params.swap)?;
             }
         }
-        Command::Prev(_) => {
-            if left.address == act_client.address {
-                let (_, prev_right) = match get_edge_client(&clients, prev_ws_id) {
-                    Some(c) => c,
-                    None => (last_client, last_client),
-                };
+        Prev(_) => {
+            let prev_right = get_bound_client(&clients, prev_ws_id)
+                .map_or(last_client, |(_, c)| c);
 
-                DispatchType::FocusWindow(WindowIdentifier::Address(prev_right.address.clone()))
+            if left.address == act_client.address {
+                handle_bound_navigation(prev_right, &act_client, params.swap)?;
             } else {
-                DispatchType::MoveFocus(Direction::Left)
-            }
+                handle_default_navigation(Direction::Left, params.swap)?
+            };
         }
     };
 
-    Dispatch::call(dispatch_type)?;
+    Ok(())
+}
+
+#[inline]
+fn handle_default_navigation(dir: Direction, swap: bool) -> anyhow::Result<()> {
+    Dispatch::call(if swap {
+        DispatchType::SwapWindow(dir)
+    } else {
+        DispatchType::MoveFocus(dir)
+    })?;
+
+    Ok(())
+}
+
+fn handle_bound_navigation(client: &Client, act_client: &Client, swap: bool) -> anyhow::Result<()> {
+    if swap {
+        handle_swap(client, act_client)
+    } else {
+        handle_focus(client)
+    }
+}
+
+fn handle_swap(client: &Client, act_client: &Client) -> anyhow::Result<()> {
+    // swap current to target workspace
+    Dispatch::call(
+        DispatchType::MoveToWorkspaceSilent(
+            WorkspaceIdentifierWithSpecial::Id(client.workspace.id),
+            Some(WindowIdentifier::Address(act_client.address.clone()))
+        )
+    )?;
+
+    // swap target client to current workspace
+    Dispatch::call(
+        DispatchType::MoveToWorkspaceSilent(
+            WorkspaceIdentifierWithSpecial::Id(act_client.workspace.id),
+            Some(WindowIdentifier::Address(client.address.clone()))
+        )
+    )?;
+
+    Ok(())
+}
+
+fn handle_focus(client: &Client) -> anyhow::Result<()> {
+    Dispatch::call(DispatchType::FocusWindow(WindowIdentifier::Address(client.address.clone())))?;
     Ok(())
 }
 
@@ -82,7 +122,7 @@ fn get_neighborhood_workspace(clients: &[Client], act_ws_id: i32) -> (i32, i32) 
     (prev, next)
 }
 
-fn get_edge_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Client)> {
+fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Client)> {
     if clients.is_empty() {
         return None;
     }

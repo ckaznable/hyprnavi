@@ -6,7 +6,7 @@ edition = "2021"
 [dependencies]
 anyhow = "1.0.82"
 argh = "0.1.12"
-hyprland = "0.4.0-alpha.1"
+hyprland = {git = "https://github.com/ckaznable/hyprland-rs", branch = "patch"}
 
 [profile.release]
 opt-level = "z"
