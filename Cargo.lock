@@ -134,9 +134,8 @@ checksum = "4271d37baee1b8c7e4b708028c57d816cf9d2434acb33a549475f78c181f6253"
 
 [[package]]
 name = "hyprland"
-version = "0.4.0-alpha.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "54fdc60390459bd6da28ec708ee7a672b8f6680efb8f8f33cbe970da16f40a48"
+version = "0.4.0-alpha.2"
+source = "git+https://github.com/ckaznable/hyprland-rs?branch=patch#7166c3ce702162543178f3e40d800a3d9dac9996"
 dependencies = [
  "ahash",
  "derive_more",
@@ -153,9 +152,8 @@ dependencies = [
 
 [[package]]
 name = "hyprland-macros"
-version = "0.4.0-alpha.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5dd8ce4c182ce77e485918f49262425ee51a2746fe97f14084869aeff2fbc38e"
+version = "0.4.0-alpha.2"
+source = "git+https://github.com/ckaznable/hyprland-rs?branch=patch#7166c3ce702162543178f3e40d800a3d9dac9996"
 dependencies = [
  "quote",
  "syn 2.0.60",
