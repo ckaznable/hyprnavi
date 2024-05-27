@@ -9,7 +9,7 @@ argh = "0.1.12"
 hyprland = {git = "https://github.com/ckaznable/hyprland-rs", branch = "patch"}
 
 [profile.release]
-opt-level = "z"
+opt-level = "s"
 lto = true
 codegen-units = 1
 panic = 'abort'
