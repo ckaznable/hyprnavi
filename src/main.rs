@@ -109,7 +109,7 @@ fn get_neighborhood_workspace(clients: &[Client], act_ws_id: i32) -> (i32, i32) 
 
     let (prev, next, max, min) = clients
         .iter()
-        .filter(|client| client.workspace.id != act_ws_id)
+        .filter(|client| client.workspace.id != act_ws_id && !client.workspace.name.starts_with("special"))
         .fold((act_ws_id, act_ws_id, act_ws_id, act_ws_id), |acc, client| {
             let id = client.workspace.id;
             let prev = if act_ws_id > id && near_than_last(id, acc.0) { id } else { acc.0 };
@@ -140,7 +140,7 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
 
     let result = clients
         .iter()
-        .filter(|client| client.workspace.id == workspace)
+        .filter(|client| client.workspace.id == workspace && !client.workspace.name.starts_with("special"))
         .fold((&clients[0], &clients[0]), |mut result, client| {
             if result.0.workspace.id != workspace {
                 result.0 = client;
