@@ -131,11 +131,12 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
         return Some((&clients[0], &clients[0]));
     }
 
-    let cmp_left = |a: &Client, b: &Client| a.at.0.cmp(&b.at.0).is_gt();
+    let cmp_left = |a: &Client, b: &Client| !a.at.0.cmp(&b.at.0).is_eq() && a.at.0.cmp(&b.at.0).is_gt();
     let cmp_right = |a: &Client, b: &Client| {
         let a = a.at.0 + a.size.0;
         let b = b.at.0 + b.size.0;
-        a.cmp(&b).is_le()
+        let cmp = a.cmp(&b);
+        !cmp.is_eq() && cmp.is_le()
     };
 
     let result = clients
