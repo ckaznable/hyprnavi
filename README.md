@@ -34,10 +34,10 @@ Commands:
 ## Example in hyprland.conf
 
 ```conf
-bind = $mainMod, H, exec, hyprnavi l
-bind = $mainMod, L, exec, hyprnavi r
-bind = $mainMod SHIFT, H, exec, hyprnavi l --swap
-bind = $mainMod SHIFT, L, exec, hyprnavi r --swap
+bind = SUPER, H, exec, hyprnavi l
+bind = SUPER, L, exec, hyprnavi r
+bind = SUPER SHIFT, H, exec, hyprnavi l --swap
+bind = SUPER SHIFT, L, exec, hyprnavi r --swap
 ```
 
 ## LICENSE
