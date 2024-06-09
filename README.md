@@ -1,6 +1,6 @@
 # Hyprnavi
 
-This package provides a simple horizontal navigation feature for Hyprland, integrating the behaviors of `movefocus l/r` and `workspace e+1/e-1` to allow users to conveniently switch between different windows and workspaces.
+This scripts provides a simple horizontal navigation feature for Hyprland, integrating the behaviors of `movefocus l/r` and `workspace e+1/e-1` to allow users to conveniently switch between different windows and workspaces.
 
 ## Installation
 
