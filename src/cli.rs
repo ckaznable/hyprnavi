@@ -14,7 +14,7 @@ pub enum Command {
     Prev(CommandPrev),
 }
 
-/// focus into window in right side
+/// Focus on the next window. If the current window is already at the edge, focus on the next workspace.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "r")]
 pub struct CommandNext {
@@ -22,7 +22,7 @@ pub struct CommandNext {
     pub swap: bool,
 }
 
-/// focus into window in left side
+/// Focus on the previous window. If the current window is already at the edge, focus on the previous workspace.
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand, name = "l")]
 pub struct CommandPrev {

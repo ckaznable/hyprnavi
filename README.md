@@ -27,8 +27,8 @@ Options:
   --swap            swap windows
 
 Commands:
-  r                 focus into window in right side
-  l                 focus into window in left side
+  r                 Focus on the next window. If the current window is already at the edge, focus on the next workspace.
+  l                 Focus on the previous window. If the current window is already at the edge, focus on the previous workspace.
 ```
 
 ## Example in hyprland.conf
