@@ -16,10 +16,11 @@ fn main() -> anyhow::Result<()> {
     let clients = Clients::get()?;
     assert!(clients.iter().len() > 1, "less than 2 clients");
 
-    let act_client = Client::get_active()
+    let Some(act_client) = Client::get_active()
         .ok()
-        .flatten()
-        .expect("active client not exist");
+        .flatten() else {
+        return handle_in_empty_ws(params);
+    };
     let act_ws_id = act_client.workspace.id;
 
     let clients = clients.to_vec();
@@ -51,6 +52,16 @@ fn main() -> anyhow::Result<()> {
             };
         }
     };
+
+    Ok(())
+}
+
+fn handle_in_empty_ws(params: Flags) -> anyhow::Result<()> {
+    use Command::*;
+    Dispatch::call(match params.cmd {
+        Next(_) => DispatchType::Custom("workspace", "e+1"),
+        Prev(_) => DispatchType::Custom("workspace", "e-1"),
+    })?;
 
     Ok(())
 }
