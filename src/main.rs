@@ -138,18 +138,10 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
         a.cmp(&b).is_le()
     };
 
-    let client_in_ws: Vec<&Client> = clients
+    let result = clients
         .iter()
         .filter(|client| client.workspace.id == workspace && !client.workspace.name.starts_with("special"))
-        .collect();
-
-    if client_in_ws.len() == 1 {
-        return Some((client_in_ws[0], client_in_ws[0]));
-    }
-
-    let result = client_in_ws
-        .iter()
-        .fold((client_in_ws[0], client_in_ws[0]), |mut result, client| {
+        .fold((&clients[0], &clients[0]), |mut result, client| {
             if result.0.workspace.id != workspace {
                 result.0 = client;
             }
