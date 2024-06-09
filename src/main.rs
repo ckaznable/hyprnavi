@@ -34,7 +34,7 @@ fn main() -> anyhow::Result<()> {
             let next_left = get_bound_client(&clients, next_ws_id)
                 .map_or(first_client, |(c, _)| c);
 
-            if in_bound(&act_client, right, true) {
+            if is_bound(&act_client, right, true) {
                 handle_bound_navigation(next_left, &act_client, params.swap)?;
             } else {
                 handle_default_navigation(Direction::Right, params.swap)?;
@@ -44,7 +44,7 @@ fn main() -> anyhow::Result<()> {
             let prev_right = get_bound_client(&clients, prev_ws_id)
                 .map_or(last_client, |(_, c)| c);
 
-            if in_bound(&act_client, left, false) {
+            if is_bound(&act_client, left, false) {
                 handle_bound_navigation(prev_right, &act_client, params.swap)?;
             } else {
                 handle_default_navigation(Direction::Left, params.swap)?
@@ -173,7 +173,7 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
 }
 
 #[inline]
-fn in_bound(act: &Client, right: &Client, side_right: bool) -> bool {
+fn is_bound(act: &Client, right: &Client, side_right: bool) -> bool {
     act.address == right.address || (
         (side_right && act.at.0 + act.size.0 == right.at.0 + right.size.0) ||
         act.at.0 == right.at.0
