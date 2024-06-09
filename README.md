@@ -1,6 +1,8 @@
 # Hyprnavi
 
-This scripts provides a simple horizontal navigation feature for Hyprland, integrating the behaviors of `movefocus l/r` and `workspace e+1/e-1` to allow users to conveniently switch between different windows and workspaces.
+This plugin provides a simple horizontal navigation feature for Hyprland, integrating the behaviors of `movefocus l/r` and `workspace e+1/e-1` to allow users to conveniently switch between different windows and workspaces.
+
+The plugin automatically detects if the current window is at the edge of the screen. If it is, it will navigate to the next workspace.
 
 ## Installation
 
