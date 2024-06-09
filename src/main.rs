@@ -34,7 +34,7 @@ fn main() -> anyhow::Result<()> {
             let next_left = get_bound_client(&clients, next_ws_id)
                 .map_or(first_client, |(c, _)| c);
 
-            if right.address == act_client.address {
+            if in_bound(&act_client, right, true) {
                 handle_bound_navigation(next_left, &act_client, params.swap)?;
             } else {
                 handle_default_navigation(Direction::Right, params.swap)?;
@@ -44,7 +44,7 @@ fn main() -> anyhow::Result<()> {
             let prev_right = get_bound_client(&clients, prev_ws_id)
                 .map_or(last_client, |(_, c)| c);
 
-            if left.address == act_client.address {
+            if in_bound(&act_client, left, false) {
                 handle_bound_navigation(prev_right, &act_client, params.swap)?;
             } else {
                 handle_default_navigation(Direction::Left, params.swap)?
@@ -131,18 +131,25 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
         return Some((&clients[0], &clients[0]));
     }
 
-    let cmp_left = |a: &Client, b: &Client| !a.at.0.cmp(&b.at.0).is_eq() && a.at.0.cmp(&b.at.0).is_gt();
+    let cmp_left = |a: &Client, b: &Client| a.at.0.cmp(&b.at.0).is_gt();
     let cmp_right = |a: &Client, b: &Client| {
         let a = a.at.0 + a.size.0;
         let b = b.at.0 + b.size.0;
-        let cmp = a.cmp(&b);
-        !cmp.is_eq() && cmp.is_le()
+        a.cmp(&b).is_le()
     };
 
-    let result = clients
+    let client_in_ws: Vec<&Client> = clients
         .iter()
         .filter(|client| client.workspace.id == workspace && !client.workspace.name.starts_with("special"))
-        .fold((&clients[0], &clients[0]), |mut result, client| {
+        .collect();
+
+    if client_in_ws.len() == 1 {
+        return Some((client_in_ws[0], client_in_ws[0]));
+    }
+
+    let result = client_in_ws
+        .iter()
+        .fold((client_in_ws[0], client_in_ws[0]), |mut result, client| {
             if result.0.workspace.id != workspace {
                 result.0 = client;
             }
@@ -164,3 +171,12 @@ fn get_bound_client(clients: &[Client], workspace: i32) -> Option<(&Client, &Cli
 
     Some(result)
 }
+
+#[inline]
+fn in_bound(act: &Client, right: &Client, side_right: bool) -> bool {
+    act.address == right.address || (
+        (side_right && act.at.0 + act.size.0 == right.at.0 + right.size.0) ||
+        act.at.0 == right.at.0
+    )
+}
+
