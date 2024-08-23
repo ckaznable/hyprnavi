@@ -1,12 +1,12 @@
 [package]
 name = "hyprnavi"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 
 [dependencies]
 anyhow = "1.0.82"
 argh = "0.1.12"
-hyprland = {git = "https://github.com/ckaznable/hyprland-rs", branch = "patch"}
+hyprland = { git = "https://github.com/hyprland-community/hyprland-rs", rev = "116305ab39c69b72e9f19162c4264dbec86be5dd" }
 
 [profile.release]
 opt-level = "s"
