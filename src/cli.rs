@@ -20,6 +20,8 @@ pub enum Command {
 pub struct CommandNext {
     #[argh(switch, description = "swap window")]
     pub swap: bool,
+    #[argh(switch, description = "move window")]
+    pub move_window: bool,
 }
 
 /// Focus on the previous window. If the current window is already at the edge, focus on the previous workspace.
@@ -28,5 +30,6 @@ pub struct CommandNext {
 pub struct CommandPrev {
     #[argh(switch, description = "swap window")]
     pub swap: bool,
+    #[argh(switch, description = "move window")]
+    pub move_window: bool,
 }
-
